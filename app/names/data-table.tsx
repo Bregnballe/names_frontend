@@ -2,6 +2,8 @@
 
 import * as React from "react";
 
+import { Button } from "@/components/ui/button";
+
 import type {
 	ColumnDef,
 	OnChangeFn,
@@ -11,6 +13,7 @@ import type {
 import {
 	flexRender,
 	getCoreRowModel,
+	getPaginationRowModel,
 	useReactTable,
 } from "@tanstack/react-table";
 
@@ -45,6 +48,7 @@ export const DataTable = <TData, TValue>({
 		data: memoizedData,
 		columns: memoizedColumns,
 		getCoreRowModel: getCoreRowModel(),
+		getPaginationRowModel: getPaginationRowModel(),
 		//getSortedRowModel: getSortedRowModel(),
 		//onColumnFiltersChange: setColumnFilters,
 		//getFilteredRowModel: getFilteredRowModel(),
@@ -52,7 +56,7 @@ export const DataTable = <TData, TValue>({
 		manualSorting: true,
 		onSortingChange: setSorting,
 
-		//manualPagination: true,
+		manualPagination: true,
 		//onPaginationChange: setPagination,
 
 		//manualFiltering: true,
@@ -130,6 +134,24 @@ export const DataTable = <TData, TValue>({
 						</TableBody>
 					</Table>
 				))}
+			<div className="flex items-center justify-end space-x-2 py-4">
+				<Button
+					variant="outline"
+					size="sm"
+					onClick={() => table.previousPage()}
+					disabled={!table.getCanPreviousPage()}
+				>
+					Previous
+				</Button>
+				<Button
+					variant="outline"
+					size="sm"
+					onClick={() => table.nextPage()}
+					disabled={!table.getCanNextPage()}
+				>
+					Next
+				</Button>
+			</div>
 		</div>
 	);
 };
