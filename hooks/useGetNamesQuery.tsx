@@ -1,11 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { SortingState } from "@tanstack/react-table";
+import qs from "qs";
+//used to more easily create the query string for the api call
+import type { SortingState, PaginationState } from "@tanstack/react-table";
 
 import { NameObject } from "../app/names/columns";
 
-export const useGetNamesQuery = (sortBy: SortingState) => {
+export const useGetNamesQuery = (
+	sortBy: SortingState,
+	pagination: PaginationState
+) => {
 	const [names, setNames] = useState<NameObject[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
 
@@ -41,6 +46,8 @@ export const useGetNamesQuery = (sortBy: SortingState) => {
 	useEffect(() => {
 		const fetchInitialData = async () => {
 			console.log(sortBy[0]?.id, sortBy[0]?.desc);
+			console.log(pagination.pageIndex, pagination.pageSize);
+			// Kommet hertil
 			const initialNames: NameObject[] = await getNames(
 				sortBy[0]?.id,
 				sortBy[0]?.desc

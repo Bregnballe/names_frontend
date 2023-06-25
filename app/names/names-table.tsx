@@ -1,6 +1,6 @@
 "use client";
 
-import type { SortingState } from "@tanstack/react-table";
+import type { SortingState, PaginationState } from "@tanstack/react-table";
 import React from "react";
 
 import { columns } from "./columns";
@@ -9,9 +9,12 @@ import { useGetNamesQuery } from "../../hooks/useGetNamesQuery";
 
 export const NamesTable = () => {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
+	const [pagination, setPagination] = React.useState<PaginationState>({
+		pageIndex: 0,
+		pageSize: 10,
+	});
 
-	const { names } = useGetNamesQuery(sorting);
-
+	const { names } = useGetNamesQuery(sorting, pagination);
 	// Ex: {sortBy: 'peopleCount:DESC'}
 
 	return (
@@ -20,13 +23,10 @@ export const NamesTable = () => {
 				columns={columns}
 				data={names}
 				sorting={sorting}
+				pagination={pagination}
 				setSorting={setSorting}
+				setPagination={setPagination}
 			/>
 		</div>
 	);
 };
-
-/*	const { names } = useGetNamesQuery({
-		sortBy: sorting.map((s) => `${s.id}:${s.desc ? "DESC" : "ASC"}`).join(","),
-	});
-*/

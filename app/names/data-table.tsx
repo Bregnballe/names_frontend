@@ -8,6 +8,7 @@ import type {
 	ColumnDef,
 	OnChangeFn,
 	SortingState,
+	PaginationState,
 } from "@tanstack/react-table";
 
 import {
@@ -31,7 +32,9 @@ interface DataTableProps<TData, TValue> {
 	data: TData[];
 	isLoading?: boolean;
 	sorting?: SortingState;
+	pagination?: PaginationState;
 	setSorting?: OnChangeFn<SortingState>;
+	setPagination?: OnChangeFn<PaginationState>;
 }
 
 export const DataTable = <TData, TValue>({
@@ -39,7 +42,9 @@ export const DataTable = <TData, TValue>({
 	columns,
 	isLoading,
 	sorting,
+	pagination,
 	setSorting,
+	setPagination,
 }: DataTableProps<TData, TValue>) => {
 	const memoizedData = React.useMemo(() => data, [data]);
 	const memoizedColumns = React.useMemo(() => columns, [columns]);
@@ -57,7 +62,7 @@ export const DataTable = <TData, TValue>({
 		onSortingChange: setSorting,
 
 		manualPagination: true,
-		//onPaginationChange: setPagination,
+		onPaginationChange: setPagination,
 
 		//manualFiltering: true,
 		//onGlobalFilterChange: setSearch,
@@ -65,7 +70,7 @@ export const DataTable = <TData, TValue>({
 		//pageCount:
 		state: {
 			sorting,
-			//pagination,
+			pagination,
 			//columnFilters,
 			//globalFilter: search,
 		},
