@@ -11,19 +11,21 @@ export const NamesTable = () => {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [pagination, setPagination] = React.useState<PaginationState>({
 		pageIndex: 0,
-		pageSize: 10,
+		pageSize: 5,
 	});
+	const [totalPages, setTotalPages] = React.useState<number>(0);
 
-	const { names } = useGetNamesQuery(sorting, pagination);
+	const { data } = useGetNamesQuery(sorting, pagination, setTotalPages);
 	// Ex: {sortBy: 'peopleCount:DESC'}
 
 	return (
 		<div className="container mx-auto py-10">
 			<DataTable
 				columns={columns}
-				data={names}
+				data={data}
 				sorting={sorting}
 				pagination={pagination}
+				totalPages={totalPages}
 				setSorting={setSorting}
 				setPagination={setPagination}
 			/>

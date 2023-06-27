@@ -34,16 +34,16 @@ export const useGetNamesQuery = (
 
 		const data = await response.json();
 		setTotalPages(data.totalPages);
+		console.log(pagination.pageIndex, data.totalPages);
 		return data.docs;
 	};
 
 	// REACT QUERY
-	const { isLoading, isError, error, data, isFetching, isPreviousData } =
-		useQuery({
-			queryKey: ["names", sortBy, pagination],
-			queryFn: () => getNames(sortBy, pagination),
-			keepPreviousData: true,
-		});
+	const { data, isPreviousData } = useQuery({
+		queryKey: ["names", sortBy, pagination],
+		queryFn: () => getNames(sortBy, pagination),
+		keepPreviousData: true,
+	});
 
-	return { isLoading, isError, error, data, isFetching, isPreviousData };
+	return { data, isPreviousData };
 };

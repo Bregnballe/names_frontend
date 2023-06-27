@@ -33,6 +33,7 @@ interface DataTableProps<TData, TValue> {
 	isLoading?: boolean;
 	sorting?: SortingState;
 	pagination?: PaginationState;
+	totalPages?: number;
 	setSorting?: OnChangeFn<SortingState>;
 	setPagination?: OnChangeFn<PaginationState>;
 }
@@ -43,6 +44,7 @@ export const DataTable = <TData, TValue>({
 	isLoading,
 	sorting,
 	pagination,
+	totalPages,
 	setSorting,
 	setPagination,
 }: DataTableProps<TData, TValue>) => {
@@ -139,7 +141,15 @@ export const DataTable = <TData, TValue>({
 						</TableBody>
 					</Table>
 				))}
-			<div className="flex items-center justify-end space-x-2 py-4">
+			<div className="flex items-center justify-end space-x-2 p-4">
+				<Button
+					variant="outline"
+					size="sm"
+					onClick={() => table.setPageIndex(0)}
+					disabled={pagination?.pageIndex === 0}
+				>
+					First
+				</Button>
 				<Button
 					variant="outline"
 					size="sm"
@@ -152,9 +162,21 @@ export const DataTable = <TData, TValue>({
 					variant="outline"
 					size="sm"
 					onClick={() => table.nextPage()}
-					disabled={!table.getCanNextPage()}
+					disabled={pagination?.pageIndex >= totalPages! - 1}
+					//disabled={!table.getCanNextPage()}
+					// THIS PRODUCES ERROR
 				>
 					Next
+				</Button>
+				<Button
+					variant="outline"
+					size="sm"
+					onClick={() => table.setPageIndex(totalPages! - 1)}
+					disabled={pagination?.pageIndex === totalPages! - 1}
+					//disabled={pagination?.pageIndex === table.getPageCount() - 1}
+					// getPageCount does not work
+				>
+					Last
 				</Button>
 			</div>
 		</div>
