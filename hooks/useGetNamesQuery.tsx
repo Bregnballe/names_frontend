@@ -1,87 +1,49 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import qs from "qs";
 //used to more easily create the query string for the api call
-import type { SortingState, PaginationState } from "@tanstack/react-table";
+import { useQuery } from "@tanstack/react-query";
 
-import { NameObject } from "../app/names/columns";
+import type { SortingState, PaginationState } from "@tanstack/react-table";
 
 export const useGetNamesQuery = (
 	sortBy: SortingState,
-	pagination: PaginationState
+	pagination: PaginationState,
+	setTotalPages: (totalPages: number) => void
+	//onError: (error: Error) => void,
+	//onSuccess: (data: NameObject[]) => void
 ) => {
-	const [names, setNames] = useState<NameObject[]>([]);
-	const [isLoading, setIsLoading] = useState(false);
+	const getNames = async (
+		sortBy: SortingState,
+		pagination: PaginationState
+	) => {
+		const sortString = sortBy[0]?.desc === true ? "-" : "";
+		const sortObject = sortBy[0]?.id
+			? { sort: sortString + sortBy[0]?.id }
+			: {};
 
-	// GENERAL FETCH API DATA
-	const getNames = async (sortId: string | undefined, sortDesc: boolean) => {
-		console.log("Getting data");
+		const stringifiedQuery = qs.stringify({
+			...sortObject,
+			limit: pagination.pageSize,
+			page: pagination.pageIndex + 1,
+		});
 
-		const sortString =
-			sortDesc === true ? "?sort=-" : sortDesc === false ? "?sort=" : "";
-		const idString = sortId === undefined ? "" : sortId;
-		//make strings for our api call based on the sort parameters passed to this hook
+		const response = await fetch(
+			`http://localhost:3000/api/names?${stringifiedQuery}`
+		);
 
-		try {
-			setIsLoading(true);
-			const response = await fetch(
-				`http://localhost:3000/api/names${sortString + idString}`
-			);
-			//{signal: controller.signal});
-			const data = await response.json();
-			return data.docs;
-		} catch (err) {
-			if (err.name === "AbortError") {
-				// handle abort()
-				console.error(err);
-				return [];
-			} else {
-				throw err;
-			}
-		}
+		const data = await response.json();
+		setTotalPages(data.totalPages);
+		return data.docs;
 	};
 
-	// FETCH API DATA ON INITIAL RENDER & SORT CHANGE
-	useEffect(() => {
-		const fetchInitialData = async () => {
-			console.log(sortBy[0]?.id, sortBy[0]?.desc);
-			console.log(pagination.pageIndex, pagination.pageSize);
-			// Kommet hertil
-			const initialNames: NameObject[] = await getNames(
-				sortBy[0]?.id,
-				sortBy[0]?.desc
-			);
-			initialNames ? setNames(initialNames) : setNames([]);
-			setIsLoading(false);
-		};
+	// REACT QUERY
+	const { isLoading, isError, error, data, isFetching, isPreviousData } =
+		useQuery({
+			queryKey: ["names", sortBy, pagination],
+			queryFn: () => getNames(sortBy, pagination),
+			keepPreviousData: true,
+		});
 
-		fetchInitialData();
-	}, [sortBy]);
-
-	return { names, isLoading };
+	return { isLoading, isError, error, data, isFetching, isPreviousData };
 };
-//https://localhost:3000/api/posts?sort=-createdAt
-
-/*
-const getNames = async function() {
-    const response = await fetch('http://localhost:3000/api/names/')
-    const data = await response.json()
-    return data.docs
-}
-// Make a function to get the data from the API
-
-
-export default async function NamesPage() {
-    const names: NameObject[] = await getNames();
-    // Get the data from the API
-
-
-    	const response = await fetch(
-				`http://localhost:3000/api/names?sort=${sortingString}createdAt`
-			);
-
-
-id: sorting[0]?.id,
-sortBy: sorting[0]?.desc,
-*/
