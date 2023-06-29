@@ -3,6 +3,7 @@
 import * as React from "react";
 
 import { Button } from "@/components/ui/button";
+import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 
 import type {
 	ColumnDef,
@@ -59,6 +60,7 @@ export const DataTable = <TData, TValue>({
 		//getSortedRowModel: getSortedRowModel(),
 		//onColumnFiltersChange: setColumnFilters,
 		//getFilteredRowModel: getFilteredRowModel(),
+		enableSorting: true,
 
 		manualSorting: true,
 		onSortingChange: setSorting,
@@ -69,7 +71,7 @@ export const DataTable = <TData, TValue>({
 		//manualFiltering: true,
 		//onGlobalFilterChange: setSearch,
 
-		//pageCount:
+		pageCount: totalPages,
 		state: {
 			sorting,
 			pagination,
@@ -97,24 +99,45 @@ export const DataTable = <TData, TValue>({
 								<TableRow key={headerGroup.id}>
 									{headerGroup.headers.map((header) => {
 										return (
-											<TableHead key={header.id} colSpan={header.colSpan}>
+											<TableHead
+												key={header.id}
+												colSpan={header.colSpan}
+												//onClick={() => table.setPageIndex(0)}
+												onClick={() =>
+													header.column.toggleSorting(
+														header.column.getIsSorted() === "asc"
+													)
+												}
+											>
 												{header.isPlaceholder ? null : (
 													<div
 														{...{
 															className: header.column.getCanSort()
 																? "select-none cursor-pointer flex items-center gap-1"
 																: "",
-															onClick: header.column.getToggleSortingHandler(),
+															//onClick: header.column.getToggleSortingHandler(),
 														}}
 													>
-														{flexRender(
-															header.column.columnDef.header,
-															header.getContext()
-														)}
-														{{
-															asc: <p className="h-4 w-4">U</p>,
-															desc: <p className="h-4 w-4">D</p>,
-														}[header.column.getIsSorted() as string] ?? null}
+														<Button variant="link" size="trimmed">
+															{flexRender(
+																header.column.columnDef.header,
+																header.getContext()
+															)}
+															{(() => {
+																switch (header.column.getIsSorted() as string) {
+																	case "asc":
+																		return <ArrowUp className="ml-2 h-4 w-4" />;
+																	case "desc":
+																		return (
+																			<ArrowDown className="ml-2 h-4 w-4" />
+																		);
+																	default:
+																		return (
+																			<ArrowUpDown className="ml-2 h-4 w-4" />
+																		);
+																}
+															})()}
+														</Button>
 													</div>
 												)}
 											</TableHead>
@@ -146,7 +169,7 @@ export const DataTable = <TData, TValue>({
 					variant="outline"
 					size="sm"
 					onClick={() => table.setPageIndex(0)}
-					disabled={pagination?.pageIndex === 0}
+					disabled={table.getState().pagination.pageIndex === 0}
 				>
 					First
 				</Button>
@@ -162,17 +185,17 @@ export const DataTable = <TData, TValue>({
 					variant="outline"
 					size="sm"
 					onClick={() => table.nextPage()}
-					disabled={pagination?.pageIndex >= totalPages! - 1}
-					//disabled={!table.getCanNextPage()}
-					// THIS PRODUCES ERROR
+					disabled={!table.getCanNextPage()}
 				>
 					Next
 				</Button>
 				<Button
 					variant="outline"
 					size="sm"
-					onClick={() => table.setPageIndex(totalPages! - 1)}
-					disabled={pagination?.pageIndex === totalPages! - 1}
+					onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+					disabled={
+						table.getState().pagination.pageIndex === table.getPageCount() - 1
+					}
 					//disabled={pagination?.pageIndex === table.getPageCount() - 1}
 					// getPageCount does not work
 				>
