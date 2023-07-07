@@ -5,30 +5,36 @@ import React from "react";
 
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
-import { useGetNamesQuery } from "../../hooks/useGetNamesQuery";
+import { useGetNamesInfinityQuery } from "../../hooks/useGetNamesInfinityQuery";
 
 export const NamesTable = () => {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [pagination, setPagination] = React.useState<PaginationState>({
 		pageIndex: 0,
-		pageSize: 5,
+		pageSize: 30,
 	});
 	const [totalPages, setTotalPages] = React.useState<number>(0);
 
-	const { data } = useGetNamesQuery(sorting, pagination, setTotalPages);
+	const { data, isFetching, fetchNextPage } = useGetNamesInfinityQuery(
+		sorting,
+		pagination,
+		setTotalPages
+	);
 	// Ex: {sortBy: 'peopleCount:DESC'}
 
 	return (
-		<div className="container mx-auto py-10">
-			<DataTable
-				columns={columns}
-				data={data}
-				sorting={sorting}
-				pagination={pagination}
-				totalPages={totalPages}
-				setSorting={setSorting}
-				setPagination={setPagination}
-			/>
-		</div>
+		<DataTable
+			columns={columns}
+			data={data?.pages[0]}
+			sorting={sorting}
+			pagination={pagination}
+			totalPages={totalPages}
+			setSorting={setSorting}
+			setPagination={setPagination}
+			// for infinite scrolling
+			//className="container"
+			//fetchMoreOnBottomReached={fetchMoreOnBottomReached}
+			//ref={tableContainerRef}
+		/>
 	);
 };

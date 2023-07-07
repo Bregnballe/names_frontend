@@ -4,7 +4,6 @@ import * as React from "react";
 
 import { Button } from "@/components/ui/button";
 import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
-import { useVirtual } from "react-virtual";
 
 import type {
 	ColumnDef,
@@ -32,14 +31,11 @@ import {
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
-	data: undefined;
+	data: TData[];
 	isLoading?: boolean;
 	sorting?: SortingState;
 	pagination?: PaginationState;
 	totalPages?: number;
-	className?: string;
-	ref?: React.Ref<HTMLDivElement>;
-	onScroll?: React.UIEventHandler<HTMLDivElement>;
 	setSorting?: OnChangeFn<SortingState>;
 	setPagination?: OnChangeFn<PaginationState>;
 }
@@ -54,7 +50,7 @@ export const DataTable = <TData, TValue>({
 	setSorting,
 	setPagination,
 }: DataTableProps<TData, TValue>) => {
-	const memoizedData: TData[] = React.useMemo(() => data, [data]);
+	const memoizedData = React.useMemo(() => data, [data]);
 	const memoizedColumns = React.useMemo(() => columns, [columns]);
 
 	const table = useReactTable({
@@ -90,9 +86,6 @@ export const DataTable = <TData, TValue>({
 		table.setPageIndex(0);
 		// toggle the sorting
 		header.column.toggleSorting(header.column.getIsSorted() === "asc");
-
-		window.scrollTo(0, 0);
-		// Scroll to top of page
 	};
 
 	const isNoDataFound =
@@ -100,18 +93,16 @@ export const DataTable = <TData, TValue>({
 
 	//NÅET HERTIL
 
-	console.log(memoizedData);
-
 	return (
-		<div className="border bg-white dark:border-gray-700 dark:bg-gray-900 sm:rounded-xl">
+		<div className=" border bg-white dark:border-gray-700 dark:bg-gray-900 sm:rounded-xl">
 			{!isNoDataFound &&
 				(isLoading ? (
 					<div className="flex h-full w-full items-center justify-center p-8">
 						Loading...
 					</div>
 				) : (
-					<Table className="max-h-screen overflow-y-scroll no-scrollbar">
-						<TableHeader className="border-b-1 border-gray-200	">
+					<Table>
+						<TableHeader>
 							{table.getHeaderGroups().map((headerGroup) => (
 								<TableRow key={headerGroup.id}>
 									{headerGroup.headers.map((header) => {
@@ -177,6 +168,42 @@ export const DataTable = <TData, TValue>({
 						</TableBody>
 					</Table>
 				))}
+			<div className="flex items-center justify-end space-x-2 p-4">
+				<Button
+					variant="outline"
+					size="sm"
+					onClick={() => table.setPageIndex(0)}
+					disabled={table.getState().pagination.pageIndex === 0}
+				>
+					First
+				</Button>
+				<Button
+					variant="outline"
+					size="sm"
+					onClick={() => table.previousPage()}
+					disabled={!table.getCanPreviousPage()}
+				>
+					Previous
+				</Button>
+				<Button
+					variant="outline"
+					size="sm"
+					onClick={() => table.nextPage()}
+					disabled={!table.getCanNextPage()}
+				>
+					Next
+				</Button>
+				<Button
+					variant="outline"
+					size="sm"
+					onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+					disabled={
+						table.getState().pagination.pageIndex === table.getPageCount() - 1
+					}
+				>
+					Last
+				</Button>
+			</div>
 		</div>
 	);
 };

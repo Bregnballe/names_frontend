@@ -11,9 +11,7 @@ const queryClient = new QueryClient();
 export default async function NamesPage() {
 	return (
 		<QueryClientProvider client={queryClient}>
-			<div className="container mx-auto py-10">
-				<NamesTable />
-			</div>
+			<NamesTable />
 		</QueryClientProvider>
 	);
 }
