@@ -9,15 +9,10 @@ import type { SortingState, PaginationState } from "@tanstack/react-table";
 
 export const useGetNamesInfinityQuery = (
 	sortBy: SortingState,
-	pagination: PaginationState,
-	setTotalPages: (totalPages: number) => void
-	//onError: (error: Error) => void,
-	//onSuccess: (data: NameObject[]) => void
+	pagination: PaginationState
 ) => {
-	const getNames = async (
-		sortBy: SortingState,
-		pagination: PaginationState
-	) => {
+	// Fetching data function
+	const fetchNames = async ({ sortBy, pageParam = 1 }) => {
 		const sortString = sortBy[0]?.desc === true ? "-" : "";
 		const sortObject = sortBy[0]?.id
 			? { sort: sortString + sortBy[0]?.id }
@@ -26,25 +21,49 @@ export const useGetNamesInfinityQuery = (
 		const stringifiedQuery = qs.stringify({
 			...sortObject,
 			limit: pagination.pageSize,
-			page: pagination.pageIndex + 1,
+			page: pageParam,
 		});
 
 		const response = await fetch(
 			`http://localhost:3000/api/names?${stringifiedQuery}`
 		);
-
 		const data = await response.json();
-		setTotalPages(data.totalPages);
-		console.log(pagination.pageIndex, data.totalPages);
-		return data.docs;
+
+		return data;
+		/*The data object contains a lot of metadata like totalPages. data.docs contains the names data
+		 */
 	};
 
-	// REACT QUERY
-	const { data, isPreviousData, isFetching, fetchNextPage } = useInfiniteQuery({
+	const {
+		data,
+		error,
+		fetchNextPage,
+		hasNextPage,
+		isPreviousData,
+		isFetching,
+		isFetchingNextPage,
+		status,
+	} = useInfiniteQuery({
 		queryKey: ["names", sortBy, pagination],
-		queryFn: () => getNames(sortBy, pagination),
-		keepPreviousData: true,
+		queryFn: ({ pageParam = 1 }) =>
+			fetchNames({ sortBy, pagination, pageParam }),
+		// This is the only way to pass PageParam along side other arguments
+
+		getNextPageParam: (lastPage) => {
+			return lastPage.hasNextPage ? lastPage.nextPage : undefined;
+			// The lastPage contains the most recent data returned from the fetchNames function
+			//"hasNextPage": true,
+			//"nextPage": 2
+		},
 	});
 
-	return { data, isPreviousData, isFetching, fetchNextPage };
+	return {
+		data,
+		error,
+		fetchNextPage,
+		hasNextPage,
+		isFetching,
+		isFetchingNextPage,
+		status,
+	};
 };

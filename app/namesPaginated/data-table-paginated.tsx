@@ -82,6 +82,8 @@ export const DataTable = <TData, TValue>({
 	});
 
 	const sortTable = (header: Header<TData, any>) => {
+		console.log("test sorting");
+
 		// set the page index to 0
 		table.setPageIndex(0);
 		// toggle the sorting

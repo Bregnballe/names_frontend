@@ -34,7 +34,7 @@ export const useGetNamesQuery = (
 
 		const data = await response.json();
 		setTotalPages(data.totalPages);
-		console.log(pagination.pageIndex, data.totalPages);
+		console.log("totalPages in hook", data.totalPages);
 		return data.docs;
 	};
 
@@ -45,5 +45,8 @@ export const useGetNamesQuery = (
 		keepPreviousData: true,
 	});
 
-	return { data, isPreviousData };
+	return {
+		data,
+		isPreviousData,
+	};
 };
